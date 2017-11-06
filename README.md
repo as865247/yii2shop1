@@ -63,4 +63,196 @@ UI设计	UI/UE
 3. 购物车设计
 ### 2.4 要点难点及解决方案
 回收站，找到stastus=0隐藏。
+# 后台
+## 1. 品牌管理
+1. 品牌的添加管理
+2. 品牌的编辑管理
+3. 品牌的查看管理
+4. 品牌的删除管理
+### 品牌功能实现遇到的设计要点
+1. 文件的上传，
+```php
+  $data = $request->post();
+
+            //2.处理数据
+            if ($brand->load($data)) {
+                $brand->imgFile = UploadedFile::getInstance($brand, 'imgFile');
+                //再次验证
+                if ($brand->validate()) {
+//判断有没有文件上传
+                    if ($brand->imgFile) {
+
+                        // $good->imgFile->extension 文件的后缀
+                        $filePath = "image/" . time() . "." . $brand->imgFile->extension;
+                        //var_dump($filePath);exit;
+                        //文件保存
+                        $brand->imgFile->saveAs($filePath, false);
+                        //保存数据
+                        $brand->logo = $filePath;ss
+
+```
+2. 文件上传后的显示预览
+### 品牌解决的功能
+1. 采用七牛云技术做文件上传功能并且保存。
+2. 文件预览回显采用jquery(status)技术实现。
+## 2.文章分类管理系统
+1. 文章的添加管理
+2. 文章的编辑管理
+3. 文章的查看管理
+4. 文章的删除管理
+### 文章管理系统遇到的设计要点
+1. 查询的文章内容与文章的分类管理要相对应。
+2. 文章数据库的设计。需要设计多张表，关联查询
+### 文章解决功能
+1. 文章采用多表查询的技术，实现文章内容与分类相对应的功能
+```php
+public function getCate(){
+        return $this->hasOne(Category::className(),['id'=>'article_categroy_id']);
+}
+```
+2. 文章功能的内容管理要和文章的标题相对应，最终实现文章显示的功能g.
+## 3. 商品的分类管理
+1. 商品分类的添加管理
+2. 商品分类的编辑管理
+3. 商品的删除管理
+### 商品管理系统遇到的设计要点
+1. 商品分类的无限级分类。
+2. 商品分类的视图显示
+3. 商品分类的编辑实现
+### 商品分类解决方案
+1. 商品无限级分类的实现方法需要用到嵌套集合技术
+```php
+//数据绑定
+            $model->load($request->post());
+            if ($model->validate()) {
+                //判断父亲ID是不是0
+                if ($model->parent_id == 0) {
+                    //创建根目录
+                    $model->makeRoot();
+                    \Yii::$app->session->setFlash('success', '添加一级目录成功');
+//                    return $this->render('add');
+                } else {
+                    //创建子分类
+
+                    //1.把父节点找到
+                    $cateParent = Goods::findOne(['id' => $model->parent_id]);
+                    //2.把当前节点对添加到父类对象中
+                    $model->prependTo($cateParent);
+
+                }
+                \Yii::$app->session->setFlash('success','添加目录成功');
+//                return $this->render('add');
+
+```
+2. 实现功能用到插件以及Ztree技术来实现、
+```php
+'setting' => '{
+            callback: {
+		        onClick: function(event, treeId, treeNode){
+		        console.dir(treeNode);
+		        $("#goods-parent_id").val(treeNode.id);
+		        }
+	     },
+			data: {
+				simpleData: {
+					enable: true,
+					idKey: "id",
+			        pIdKey: "parent_id",
+			        rootPId: 0
+				}
+			}
+		}',
+    'nodes' => $cates
+```
+
+3. 遇到的问题是视图的设计和商品分类的编辑功能
+```php
+public $template = '{:update} {:delete}';
+    /**
+     * 重写了标签渲染方法。
+     * @param mixed $model
+     * @param mixed $key
+     * @param int $index
+     * @return mixed
+     */
+    protected function renderDataCellContent($model, $key, $index)
+    {
+        return preg_replace_callback('/\\{([^}]+)\\}/', function ($matches) use ($model, $key, $index) {
+            list($name, $type) = explode(':', $matches[1].':'); // 得到按钮名和类型
+//            if($name == 'view'){
+//                $url = Yii::$app->request->hostInfo.'/product/'.$model->id.'.html';
+//                return call_user_func($this->buttons[$type], $url, $model, $key,$options=['target'=>'_blank']);
+//
+//            }else{
+            if (!isset($this->buttons[$type])) { // 如果类型不存在 默认为view
+                $type = 'index';
+            }
+            if ('' == $name) { // 名称为空，就用类型为名称
+                $name = $type;
+            }
+            $url = $this->createUrl($name, $model, $key, $index);
+            return call_user_func($this->buttons[$type], $url, $model, $key);
+//            }
+        }, $this->template);
+    }
+    /**
+     * 方法重写，让view默认新页面打开
+     * @return [type] [description]
+     */
+    protected function initDefaultButtons(){
+//        if (!isset($this->buttons['view'])) {
+//            $this->buttons['view'] = function ($url, $model, $key) {
+//
+//                $options = array_merge([
+//                    'title' => Yii::t('yii', 'View'),
+//                    'aria-label' => Yii::t('yii', 'View'),
+//                    'data-pjax' => '0',
+//                    'target'=>'_blank'
+//                ], $this->buttonOptions);
+//                return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', '/goodscategory/view?id='.$model->id, $options);
+//            };
+//        }
+        if (!isset($this->buttons['update'])) {
+            $this->buttons['update'] = function ($url, $model, $key) {
+                $options = array_merge([
+                    'title' => Yii::t('yii', 'Update'),
+                    'aria-label' => Yii::t('yii', 'Update'),
+                    'data-pjax' => '0',
+                ], $this->buttonOptions);
+                return Html::a('<span class="glyphicon glyphicon-pencil"></span>', '/goods-category/edit?id='.$model->id, $options);
+            };
+        }
+        if (!isset($this->buttons['delete'])) {
+            $this->buttons['delete'] = function ($url, $model, $key) {
+                $options = array_merge([
+                    'title' => Yii::t('yii', 'Delete'),
+                    'aria-label' => Yii::t('yii', 'Delete'),
+                    'data-confirm' => Yii::t('yii', 'Are you sure you want to delete this item?'),
+                    'data-method' => 'post',
+                    'data-pjax' => '0',
+                ], $this->buttonOptions);
+                return Html::a('<span class="glyphicon glyphicon-trash"></span>', '/goods-category/del?id='.$model->id, $options);
+            };
+        }
+    }
+
+```
+4. 会遇到异常需要捕获。
+5. 删除会遇到有子节点的类不能直接删除
+```php
+//删除
+        if($cate!=null) {
+            \Yii::$app->session->setFlash('success', "文件内含文件，不能删除！请先删除子文件");
+            return $this->redirect(['index']);
+        }else{
+            $cate=Goods::findOne($id);
+            if($cate->depth==0){
+                GoodsDel::findOne($id)->delete();
+            }else{
+                Goods::findOne($id)->delete();
+            }
+            \Yii::$app->session->setFlash('success','删除成功');
+            return $this->redirect(['index']);s
+
+```
 
