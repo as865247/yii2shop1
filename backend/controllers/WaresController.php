@@ -3,9 +3,11 @@
 namespace backend\controllers;
 
 use app\models\Brand;
+use app\models\WaresSearchForm;
 use backend\models\Goods;
 use backend\models\Wares;
 use backend\models\WaresGallery;
+use yii\data\Pagination;
 use yii\web\Request;
 use yii\web\UploadedFile;
 use flyok666\qiniu\Qiniu;
@@ -14,15 +16,49 @@ class WaresController extends \yii\web\Controller
 {
     public function actionIndex()
     {
-        $wares=Wares::find()->all();
-        return $this->render('index',['wares' => $wares]);
+//        $wares=Wares::find()->where(['status'=>1])->all();
+        $query = Wares::find();
+        $request=\Yii::$app->request;
+        //接收变量
+        $keyword=$request->get('keyword');
+        $minPrice=$request->get('minPrice');
+        $maxPrice=$request->get('maxPrice');
+        $status=$request->get('status');
+        if ($minPrice>0){
+            //拼接条件
+            $query->andWhere("shop_price >= {$minPrice}");
+        }
+        if ($maxPrice>0){
+            $query->andWhere("shop_price <= {$maxPrice}");
+        }
+        if (isset($keyword)){
+            $query->andWhere("name like '%{$keyword}%' or sn like '%{$keyword}%'");
+        }
+        //
+        if ($status ==="1" or $status==="0"){
+            $query->andWhere("status= {$status}");
+        }
+
+        $count=$query->count();
+        $searchForm=new WaresSearchForm();
+            $page = new Pagination(
+            [
+                'pageSize'=>5,
+                'totalCount'=>$count
+            ]
+        );
+        $models=$query->limit($page->limit)->offset($page->offset)->all();
+
+        return $this->render('index',compact("page","","models","searchForm"));
     }
+
     //添加
  public  function actionAdd()
  {
      $model = new Wares();
      $good = Goods::find()->all();
      $brand= Brand::find()->all();
+
      $request = \Yii::$app->request;
      if ($request->isPost) {
          //绑定数据
@@ -41,7 +77,6 @@ class WaresController extends \yii\web\Controller
                  \Yii::$app->session->setFlash("success", "添加成功");
                  //跳转
                  return     $this->redirect(['wares/index']);
-
 
                  }else{
 
@@ -78,19 +113,7 @@ class WaresController extends \yii\web\Controller
             }
         return  $this->render('add', [ 'wares'=> $model,'good'=>$good,'brand'=>$brand]);
     }
-    public function actionDel($id){
 
-        $model=Wares::findOne($id);
-        //删除
-        $model->delete();
-        //跳转
-        $this->redirect(['model/index']);
-    }
-    //相册
-    public function actionGallery(){
-        $gallery=WaresGallery::find()->all();
-      return  $this->render('index', ['gallery' =>$gallery ]);
-    }
 //七牛云上传
     public function actionUpload(){
 
@@ -117,6 +140,27 @@ class WaresController extends \yii\web\Controller
 
         ];
        echo json_encode($info);
+
+    }
+    //删除
+    public function  actionDel($id){
+        $model=Wares::findOne($id);
+        $model->status=0;
+        $model->save();
+        $this->redirect(['wares/index']);
+    }
+    public function actionRecycle()
+    {
+        $model = Wares::find()->where(['status' => 0])->all();
+        return $this->render('recycle', ['wares' => $model]);
+    }
+    public function actionRecytion($id){
+        $model=Wares::findOne($id);
+
+        //还原
+        $model->status=1;
+        $model->save();
+        return $this->redirect(['wares/index']);
 
     }
 }

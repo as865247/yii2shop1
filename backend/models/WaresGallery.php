@@ -1,38 +1,31 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: Lenovo
+ * Date: 2017/11/8
+ * Time: 18:49
+ */
 
 namespace backend\models;
 
-use Yii;
 
-/**
- * This is the model class for table "wares_gallery".
- *
- * @property integer $id
- * @property string $wares_id
- * @property string $path
- */
 class WaresGallery extends \yii\db\ActiveRecord
 {
-    /**
-     * @inheritdoc
-     */
     public static function tableName()
     {
-        return 'wares_gallery';
+        return 'goods_gallery';
     }
-
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id'], 'required'],
-            [['id', 'wares_id'], 'integer'],
+            [['goods_id'], 'integer'],
+            [['path'], 'required'],
             [['path'], 'string', 'max' => 255],
         ];
     }
-
     /**
      * @inheritdoc
      */
@@ -40,8 +33,8 @@ class WaresGallery extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'wares_id' => 'Wares ID',
-            'path' => 'Path',
+            'goods_id' => '商品id',
+            'path' => '图片地址',
         ];
     }
 }
