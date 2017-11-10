@@ -64,6 +64,7 @@ class BrandController extends Controller
 
             }
         }
+        $brand->status=1;
         return $this->render('add',['brands'=>$brand]);
     }
 //编辑

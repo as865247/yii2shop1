@@ -35,6 +35,7 @@ class CategoryController extends \yii\web\Controller
                 }
             }
         }
+        $category->status=1;
         return $this->render("add",['categorys'=>$category]);
     }
     //编辑

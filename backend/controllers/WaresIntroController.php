@@ -24,11 +24,14 @@ class WaresIntroController extends Controller
     public function actionIndex($id)
     {
         $model = WaresIntro::find()->where($id)->all();
-        $wares = Wares::find()->all();
+        $wares = Wares::findOne($id);
+        //var_dump($wares);exit;
         if ($model){
+//            var_dump($model); exit();
             return $this->render('index',['model'=>$model,'wares'=>$wares]);
         }else{
             \Yii::$app->session->setFlash('success', '你还没有添加详情，请先添加');
+
             return $this->redirect(['wares/index']);
         }
 
@@ -43,11 +46,12 @@ class WaresIntroController extends Controller
             //1. 绑定数据
             if ($model->load($request->post())) {
                 $model->name=$wares->name;
-                $model->id=$wares->id;
+                $model->wares_id=$wares->id;
                 $model->validate();
 //                var_dump($model->getErrors());exit();
                 //6 保存数据
                 $model->save();
+
                 \Yii::$app->session->setFlash('success', '添加成功');
                 return $this->redirect(['wares/index']);
             }else {

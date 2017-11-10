@@ -6,10 +6,7 @@ use app\models\Brand;
 use app\models\WaresSearchForm;
 use backend\models\Goods;
 use backend\models\Wares;
-use backend\models\WaresGallery;
 use yii\data\Pagination;
-use yii\web\Request;
-use yii\web\UploadedFile;
 use flyok666\qiniu\Qiniu;
 
 class WaresController extends \yii\web\Controller
@@ -85,6 +82,8 @@ class WaresController extends \yii\web\Controller
 
              }
          }
+         $model->status=1;
+     $model->is_on_sale=1;
     return  $this->render('add',['wares'=>$model,'good'=>$good,'brand'=>$brand]);
  }
 
@@ -145,7 +144,7 @@ class WaresController extends \yii\web\Controller
     //删除
     public function  actionDel($id){
         $model=Wares::findOne($id);
-        $model->status=0;
+        $model->status = 0;
         $model->save();
         $this->redirect(['wares/index']);
     }

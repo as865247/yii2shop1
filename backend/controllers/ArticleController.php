@@ -40,6 +40,7 @@ class ArticleController extends \yii\web\Controller
                 }
             }
         }
+        $article->status=1;
         return $this->render('add',['articles'=>$article ,'cates'=>$cates]);
     }
 

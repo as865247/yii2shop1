@@ -1,5 +1,5 @@
-<a href="add" class="btn btn-success">添加分类</a>
 
+<?=\yii\bootstrap\Html::a('添加商品分类',['goods/add'],['class'=>'btn btn-success'])?>&nbsp;
 
 <?php
 use yii\web;

@@ -22,6 +22,7 @@ class Article extends \yii\db\ActiveRecord
      */
 
     public  static $statusText=['-1'=>'删除','0'=>'隐藏','1'=>'显示'];
+
     public static function tableName()
     {
         return 'article';

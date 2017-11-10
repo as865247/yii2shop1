@@ -5,7 +5,6 @@
 <?=\yii\bootstrap\Html::a('回收站',['wares/recycle'],['class'=>'btn btn-success'])?>
 
 <div class="row">
-    <div class="col-md-2"><?=\yii\bootstrap\Html::a("添加",['add'],['class'=>'btn btn-info'])?></div>
     <div class="col-md-10">
         <?php
         $searchForm=new \app\models\WaresSearchForm();
