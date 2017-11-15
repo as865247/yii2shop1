@@ -18,8 +18,8 @@
             <td><?=$category->id?></td>
             <td><?=$category->name?></td>
             <td><?=$category->intro?></td>
+            <td><?=\backend\models\Category::$statusText[$category->status]?></td>
             <td><?=$category->sort?></td>
-            <td><?=$category->status?></td>
             <td><?=$category->type_help?></td>
             <td> <?php
                 echo   \yii\bootstrap\Html::a("编辑",['category/edit','id'=>$category->id],['class'=>'btn btn-info']);

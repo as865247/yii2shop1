@@ -27,7 +27,7 @@ class WaresIntro extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id','name'], 'required'],
+            [['name'], 'required'],
             [['content'], 'string'],
             [['logo_one'], 'string', 'max' => 200],
             [['logo_two'], 'string', 'max' => 200],

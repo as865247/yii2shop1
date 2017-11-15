@@ -21,7 +21,7 @@
             <td><?=$brand->intro?></td>
             <td><?=\yii\bootstrap\Html::img('@web/'.$brand->logo,['height'=>40 ,'class'=>'img-circle'])?></td>
             <td><?=$brand->sort?></td>
-            <td><?=$brand->status?></td>
+            <td><?=\app\models\Brand::$statusText[$brand->status]?></td>
             <td> <?php
                 echo   \yii\bootstrap\Html::a("编辑",['brand/edit','id'=>$brand->id],['class'=>'btn btn-info']);
                 echo   \yii\bootstrap\Html::a("删除",['brand/del','id'=>$brand->id],['class'=>'btn btn-danger']);

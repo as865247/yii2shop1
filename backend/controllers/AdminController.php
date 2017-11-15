@@ -81,6 +81,8 @@ class AdminController extends \yii\web\Controller
                     var_dump($admin->getErrors());
                     $admin->save();
                     \Yii::$app->session->setFlash('success', '注册成功');
+
+
                     //跳转
                     return     $this->redirect(['admin/index']);
 

@@ -13,9 +13,11 @@ class WaresController extends \yii\web\Controller
 {
     public function actionIndex()
     {
-//        $wares=Wares::find()->where(['status'=>1])->all();
+
+        //构造查询对象
         $query = Wares::find();
         $request=\Yii::$app->request;
+        // var_dump($request->get());exit;
         //接收变量
         $keyword=$request->get('keyword');
         $minPrice=$request->get('minPrice');
@@ -31,68 +33,68 @@ class WaresController extends \yii\web\Controller
         if (isset($keyword)){
             $query->andWhere("name like '%{$keyword}%' or sn like '%{$keyword}%'");
         }
-        //
+        //判断0和1的情况必需用三等号
         if ($status ==="1" or $status==="0"){
             $query->andWhere("status= {$status}");
         }
-
         $count=$query->count();
         $searchForm=new WaresSearchForm();
-            $page = new Pagination(
+        $page = new Pagination(
             [
                 'pageSize'=>5,
                 'totalCount'=>$count
             ]
         );
         $models=$query->limit($page->limit)->offset($page->offset)->all();
-
-        return $this->render('index',compact("page","","models","searchForm"));
+        return $this->render('index',compact("page","models","searchForm"));
     }
 
     //添加
- public  function actionAdd()
- {
-     $model = new Wares();
-     $good = Goods::find()->all();
-     $brand= Brand::find()->all();
+    public function actionAdd()
+    {
+        $model = new Wares();
+        $good = Goods::find()->all();
+        $brand = Brand::find()->all();
 
-     $request = \Yii::$app->request;
-     if ($request->isPost) {
-         //绑定数据
-         if ($model->load($request->post())) {
+        $request = \Yii::$app->request;
+        if ($request->isPost) {
+            //绑定数据
+            if ($model->load($request->post())) {
 
 
-
-             if ($model->validate()) {
+                if ($model->validate()) {
 
 //                 var_dump($model->name);exit;
-                 //追加时间
-                 $model->inputime=time();
-                 //判断文件上传的路径
-                 $model->sn=date('Ymd').$model->inputime."0000".$model->id;
-                 $model->save();
-                 \Yii::$app->session->setFlash("success", "添加成功");
-                 //跳转
-                 return     $this->redirect(['wares/index']);
 
-                 }else{
+                    //追加时间
+                    $model->inputime = time();
+                    //判断文件上传的路径
+                    $model->sn = date('Ymd') . $model->inputime . "0000" . $model->id;
+                    $model->save();
+                    \Yii::$app->session->setFlash("success", "添加成功");
+                    //跳转
+                    return $this->redirect(['wares/index']);
 
-                var_dump( $model->getErrors());exit;
-             }
+                } else {
 
-             }
-         }
-         $model->status=1;
-     $model->is_on_sale=1;
-    return  $this->render('add',['wares'=>$model,'good'=>$good,'brand'=>$brand]);
- }
+                    var_dump($model->getErrors());
+                    exit;
+                }
 
- //编辑
-    public  function actionEdit($id)
+            }
+        }
+
+        $model->status = 1;
+        $model->is_on_sale = 1;
+        return $this->render('add', ['wares' => $model, 'good' => $good, 'brand' => $brand]);
+    }
+
+    //编辑
+    public function actionEdit($id)
     {
-        $model =Wares::findOne($id);
+        $model = Wares::findOne($id);
         $good = Goods::find()->all();
-        $brand=Brand::find()->all();
+        $brand = Brand::find()->all();
         $request = \Yii::$app->request;
         if ($request->isPost) {
             if ($model->load($request->post())) {
@@ -103,63 +105,78 @@ class WaresController extends \yii\web\Controller
                     //跳转
                     $this->redirect(['wares/index']);
 
-                    }else{
+                } else {
 
-                    var_dump( $model->getErrors());exit;
+                    var_dump($model->getErrors());
+                    exit;
                 }
 
-                }
             }
-        return  $this->render('add', [ 'wares'=> $model,'good'=>$good,'brand'=>$brand]);
+        }
+        return $this->render('add', ['wares' => $model, 'good' => $good, 'brand' => $brand]);
     }
 
 //七牛云上传
-    public function actionUpload(){
+    public function actionUpload()
+    {
 
 
         $config = [
-            'accessKey'=>'XT8cwcHmYBSe6mksIrFkNaZy0J7lMDUhiVydwQQt',
-            'secretKey'=>'1A3xLkcuGHnQc8M1tObWn_ATay4sCr8oEiYDUAQm',
-            'domain'=>'http://oz1j5x86h.bkt.clouddn.com',
-            'bucket'=>'php0712',
-            'area'=>Qiniu::AREA_HUADONG
+            'accessKey' => 'XT8cwcHmYBSe6mksIrFkNaZy0J7lMDUhiVydwQQt',
+            'secretKey' => '1A3xLkcuGHnQc8M1tObWn_ATay4sCr8oEiYDUAQm',
+            'domain' => 'http://oz1j5x86h.bkt.clouddn.com',
+            'bucket' => 'php0712',
+            'area' => Qiniu::AREA_HUADONG
         ];
 
 
 //            var_dump($_FILES);die();
         $qiniu = new Qiniu($config);
         $key = time();
-        $qiniu->uploadFile($_FILES['file']['tmp_name'],$key);
+        $qiniu->uploadFile($_FILES['file']['tmp_name'], $key);
         $url = $qiniu->getLink($key);
 
-        $info=[
-                'code'=>0,
-                'url'=>$url,
-                'attachment'=>$url
+        $info = [
+            'code' => 0,
+            'url' => $url,
+            'attachment' => $url
 
         ];
-       echo json_encode($info);
+        echo json_encode($info);
 
     }
+
     //删除
-    public function  actionDel($id){
-        $model=Wares::findOne($id);
+    public function actionDel($id)
+    {
+        $model = Wares::findOne($id);
         $model->status = 0;
         $model->save();
         $this->redirect(['wares/index']);
     }
+
+    //回收站
     public function actionRecycle()
     {
         $model = Wares::find()->where(['status' => 0])->all();
         return $this->render('recycle', ['wares' => $model]);
     }
-    public function actionRecytion($id){
-        $model=Wares::findOne($id);
+
+    public function actionRecytion($id)
+    {
+        $model = Wares::findOne($id);
 
         //还原
-        $model->status=1;
+        $model->status = 1;
         $model->save();
         return $this->redirect(['wares/index']);
 
+    }
+
+//彻底删除
+    public function actionDelte($id){
+        $model=Wares::findOne($id);
+        $model->delete();
+        return $this->redirect(['index']);
     }
 }

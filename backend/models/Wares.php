@@ -2,6 +2,7 @@
 
 namespace backend\models;
 
+use app\models\Brand;
 use Yii;
 
 /**
@@ -27,8 +28,8 @@ class Wares extends \yii\db\ActiveRecord
      * @inheritdoc
      */
     public $imgFile;
-    public static $statusText=['0'=>'回收站','1'=>'正常'];
-    public static $statusSale=['1'=>'是','0'=>'否'];
+    public static $statusText=['0'=>'隐藏','1'=>'显示'];
+    public static $statusSale=['1'=>'上架','0'=>'下架'];
     public static function tableName()
     {
         return 'wares';
@@ -64,10 +65,16 @@ class Wares extends \yii\db\ActiveRecord
             'market_price' => '市场价格',
             'shop_price' => '本店价格',
             'stock' => '库存',
-            'is_on_sale' => '是否上架1是，0否',
-            'status' => '1 正常 ，0回收站',
+            'is_on_sale' => '是否上架',
+            'status' => '状态',
             'sort' => '排序',
             'inputime' => '录入时间',
         ];
+    }
+public function getGoods(){
+        return $this->hasOne(Goods::className(),['id'=>'goods_id']);
+}
+    public function getBrand(){
+        return $this->hasOne(Brand::className(),['id'=>'brand_id']);
     }
 }

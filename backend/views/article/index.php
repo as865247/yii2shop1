@@ -20,7 +20,7 @@
             <td><?=$article->name?></td>
             <td><?=$article->intro?></td>
             <td><?=$article->sort?></td>
-            <td><?=$article->status?></td>
+            <td><?=\backend\models\Article::$statusText[$article->status]?></td>
             <td><?=$article->cate->name?></td>
             <td><?=date('Y-m-d H:i:s',$article->inputime)?></td>
             <td> <?php

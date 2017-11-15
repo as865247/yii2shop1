@@ -33,7 +33,7 @@
         <td><?=date('Y-m-d H:i:s',$ware->inputime) ?></td>
         <td> <?php
             echo   \yii\bootstrap\Html::a("恢复",['wares/recytion','id'=>$ware->id],['class'=>'btn btn-info']);
-            echo   \yii\bootstrap\Html::a("彻底删除",['wares/del','id'=>$ware->id],['class'=>'btn btn-success']);
+            echo   \yii\bootstrap\Html::a("彻底删除",['wares/delte','id'=>$ware->id],['class'=>'btn btn-success']);
             ?>
 
 

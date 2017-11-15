@@ -54,7 +54,6 @@ class BrandController extends Controller
                         //保存数据
                         $brand->logo = $filePath;
                     }
-
                     $brand->save();
                     \Yii::$app->session->setFlash("success", "添加成功");
                     //跳转

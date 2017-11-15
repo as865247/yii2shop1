@@ -23,7 +23,7 @@ class WaresIntroController extends Controller
     //显示视图
     public function actionIndex($id)
     {
-        $model = WaresIntro::find()->where($id)->all();
+       $model=WaresIntro::find()->where(['wares_id'=>$id])->all();
         $wares = Wares::findOne($id);
         //var_dump($wares);exit;
         if ($model){
@@ -47,13 +47,26 @@ class WaresIntroController extends Controller
             if ($model->load($request->post())) {
                 $model->name=$wares->name;
                 $model->wares_id=$wares->id;
-                $model->validate();
+               if($model->validate()) {
+                   if($model->save()){
+                       \Yii::$app->session->setFlash('success', '添加成功');
+                       return $this->redirect(['wares/index']);
+                   }else{
+                        $model->getErrors();exit();
+                   }
+
+
+               }else {
+                   var_dump($model->getErrors());
+                   exit();
+               }
+//                echo '<pre>';
+//                var_dump($model->wares_id);exit;
 //                var_dump($model->getErrors());exit();
                 //6 保存数据
-                $model->save();
 
-                \Yii::$app->session->setFlash('success', '添加成功');
-                return $this->redirect(['wares/index']);
+
+
             }else {
                 var_dump($model->getErrors());
                 exit();
